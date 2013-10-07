@@ -1,0 +1,1 @@
+Hey. This is my python class homeworks. It is set up simply, with the name of the week, and then each part with it's own folder. Each week has a readme in it that explains stuff. Enjoy! 
