@@ -1,0 +1,1 @@
+Everything is explained in the notebook. The inline plotting is messed up, so I didn't use it, so youll have to deal with plots coming up. 
