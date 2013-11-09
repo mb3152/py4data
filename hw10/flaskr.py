@@ -3,8 +3,8 @@ from flask import Flask, request, session, g, redirect, url_for, abort, render_t
 import os
 from werkzeug import secure_filename
 from pybtex.database.input import bibtex
-
-
+from collections import defaultdict
+import pandas as pd
 #configuration and upload stuff 
 app = Flask(__name__)
 app.config.update(dict(
@@ -36,39 +36,55 @@ def upload():
     db = get_db()
     parser = bibtex.Parser()
     bibdata = parser.parse_file(filename)
-    db.execute("""DROP TABLE collection""")
+    db.execute("""DROP TABLE collection""") # add in option for loading in different collections 
     db.execute("""CREATE TABLE collection
-                  (title text, journal text, author text) 
+                  (Title text, Journal text, Author text, Year text) 
                """)
     for bib_id in bibdata.entries:
         b = bibdata.entries[bib_id].fields
         try:
             title = b["title"]
             journal = b["journal"]
+            journal = journal.replace("\\", "")
             author = b["author"]
+            year = b['year']
+            year = year.replace('{}','()')
+            year = str(year)
+            author = author.replace('{}','()')
+            journal = journal.replace('{}','()')
+            title = title.replace('{}','()')
             sql = ("""
-                INSERT INTO collection VALUES ('title', 'journal', 'author')
-                """) # want to get input and name collection
+                INSERT INTO collection VALUES ('%s', '%s','%s','%s') """
+                %(title, journal, author,year))
             db.execute(sql)
             db.commit()
-            print 'put ' + title + ' into database'
-        except KeyError:
-            print str(KeyError) 
+        except:
+            print 'File missing value!'
     return redirect(url_for('query'))
-
 
 @app.route('/query', methods=['GET', 'POST'])
 def query():
     return render_template('query.html')
+
 
 @app.route('/query_db', methods=['GET', 'POST'])
 def query_db():
     userquery = request.form['userquery']
     db = get_db()
     cur = db.execute(userquery)
-    entries = cur.fetchall()
-    print entries
-    return repr(entries)
+    entries = []
+    for row in cur.fetchall():
+        x = dict(Title=row[0], Journal=row[1], Author=row[2], Year=row[3])
+        entries.append(x)
+    table = []
+    for line in entries:
+        z = '____________________________________'
+        table.append(z)
+        for x , y  in zip(line.values(),line.keys()):
+            y= str(y) + ':'
+            table.append(y)
+            table.append(x)
+    return render_template('show.html',data = table)
 
 def init_db():
     with app.app_context():
@@ -80,7 +96,6 @@ def get_db():
     if not hasattr(g, 'sqlite_db'):
         g.sqlite_db = connect_db()
     return g.sqlite_db
-
 def connect_db():
     rv = sqlite3.connect(app.config['DATABASE'])
     rv.row_factory = sqlite3.Row
