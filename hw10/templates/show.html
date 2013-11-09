@@ -18,9 +18,11 @@
 <input type="submit" value="Query The Database">
 </form>
 <h4 class="text-muted">Upload another database?</h4>
-<form action="upload" method="post" enctype="multipart/form-data">
-<input type="file" name="file">
-<input type="submit" value="Upload Your New BibTex File">
+        <form action="upload" method="post" enctype="multipart/form-data">
+        <input type='text' method ="post" enctype="multipart/form-data">
+        <input type='text' name='collection'>
+        <input type="file" name="file"><br /><br />
+        <input type="submit" value="Upload Your BibTex File">
       </form>
       </div>
     </div>
@@ -28,7 +30,7 @@
 </html>
 </div>
 
-
+<h3 class="text-muted">Results</h4>
 <table>
 {% for value in data %}
    <tr>

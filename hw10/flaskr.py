@@ -31,16 +31,29 @@ def index():
 @app.route('/upload', methods=['POST'])
 def upload():
     file = request.files['file']
+    collection = request.form['collection']
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
     db = get_db()
     parser = bibtex.Parser()
     bibdata = parser.parse_file(filename)
-    db.execute("""DROP TABLE collection""") # add in option for loading in different collections 
-    db.execute("""CREATE TABLE collection
-                  (Title text, Journal text, Author text, Year text, Keywords text) 
-               """)
+    try:
+        sql = (""" 
+            CREATE TABLE %s (Title text, Journal text, Author text, Year text, Keywords text)
+            """
+            %(collection))
+        db.execute(sql)
+    except OperationalError:
+        #table already exists
+        sql = (("""DROP TABLE %s""")%(collection))
+        db.execute(sql)
+        sql = (""" 
+            CREATE TABLE %s (Title text, Journal text, Author text, Year text, Keywords text)
+            """
+            %(collection))
+        db.execute(sql)
+
     for bib_id in bibdata.entries:
         b = bibdata.entries[bib_id].fields
         try:
@@ -72,8 +85,8 @@ def upload():
             except:
                 keywords = 'null'
             sql = ("""
-                INSERT INTO collection VALUES ('%s', '%s','%s','%s','%s') """
-                %(title, journal, author,year,keywords))
+                INSERT INTO %s VALUES ('%s', '%s','%s','%s','%s') """
+                %(collection, title, journal, author,year,keywords))
             db.execute(sql)
             db.commit()
         except:

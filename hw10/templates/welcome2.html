@@ -7,7 +7,7 @@
   <body>
     <div class="container">
       <div class="header">
-        <h3 class="text-muted">Welcome to the BibTex database! Please upload your BibTex file</h3>
+        <h3 class="text-muted">Welcome to the BibTex database! Please upload your BibTex file and name it.</h3>
       </div>
       <hr/>
       <div>
@@ -17,6 +17,8 @@
       </form> -->
       </div>
         <form action="upload" method="post" enctype="multipart/form-data">
+        <input type='text' method ="post" enctype="multipart/form-data">
+        <input type='form' name='collection'>
         <input type="file" name="file"><br /><br />
         <input type="submit" value="Upload Your BibTex File">
       </form>
