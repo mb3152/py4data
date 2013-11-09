@@ -1,4 +1,34 @@
+
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css"
+          rel="stylesheet">
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h3 class="text-muted">Viewing Data</h3>
+      </div>
+      <hr/>
+      <div>
+<h4 class="text-muted">Try another query?</h4>
+<form action="query_db" method="post" enctype="multipart/form-data">
+<input type="form" name="userquery"><br /><br />
+<input type="submit" value="Query The Database">
+</form>
+<h4 class="text-muted">Upload another database?</h4>
+<form action="upload" method="post" enctype="multipart/form-data">
+<input type="file" name="file">
+<input type="submit" value="Upload Your New BibTex File">
+      </form>
+      </div>
+    </div>
+  </body>
+</html>
+</div>
+
+
 <table>
 {% for value in data %}
    <tr>

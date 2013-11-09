@@ -24,7 +24,7 @@ def allowed_file(filename):
 #start page
 @app.route('/')
 def index():
-    return render_template('welcome.html')
+    return render_template('welcome2.html')
 
 # upload the bibtex, store in database
 @app.route('/upload', methods=['POST'])
@@ -38,24 +38,41 @@ def upload():
     bibdata = parser.parse_file(filename)
     db.execute("""DROP TABLE collection""") # add in option for loading in different collections 
     db.execute("""CREATE TABLE collection
-                  (Title text, Journal text, Author text, Year text) 
+                  (Title text, Journal text, Author text, Year text, Keywords text) 
                """)
     for bib_id in bibdata.entries:
         b = bibdata.entries[bib_id].fields
         try:
-            title = b["title"]
-            journal = b["journal"]
-            journal = journal.replace("\\", "")
-            author = b["author"]
-            year = b['year']
-            year = year.replace('{}','()')
-            year = str(year)
-            author = author.replace('{}','()')
-            journal = journal.replace('{}','()')
-            title = title.replace('{}','()')
+            try:
+                title = b["title"]
+                title = title.replace('{}','()')
+            except:
+                title = 'null'
+            try:
+                journal = b["journal"]
+                journal = journal.replace("\\", "")
+                journal = journal.replace('{}','()')
+            except:
+                journal = 'null'
+            try:
+                author = b["author"]
+                author = author.replace('{}','()')
+            except:
+                author = 'null'
+            try:
+                year = b['year']
+                year = year.replace('{}','()')
+                year = str(year)
+            except:
+                year = 'null'
+            try:
+                keywords=b["keywords"]
+                keywords = keywords.replace('{}','()')
+            except:
+                keywords = 'null'
             sql = ("""
-                INSERT INTO collection VALUES ('%s', '%s','%s','%s') """
-                %(title, journal, author,year))
+                INSERT INTO collection VALUES ('%s', '%s','%s','%s','%s') """
+                %(title, journal, author,year,keywords))
             db.execute(sql)
             db.commit()
         except:
@@ -64,7 +81,7 @@ def upload():
 
 @app.route('/query', methods=['GET', 'POST'])
 def query():
-    return render_template('query.html')
+    return render_template('query2.html')
 
 
 @app.route('/query_db', methods=['GET', 'POST'])
@@ -74,7 +91,7 @@ def query_db():
     cur = db.execute(userquery)
     entries = []
     for row in cur.fetchall():
-        x = dict(Title=row[0], Journal=row[1], Author=row[2], Year=row[3])
+        x = dict(Title=row[0], Journal=row[1], Author=row[2], Year=row[3], Keywords=row[4])
         entries.append(x)
     table = []
     for line in entries:
